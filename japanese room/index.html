@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Minka Viewer - Zenith Architecture</title>
+  
+  <!-- Preconnect to Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  
+  <!-- Load Manrope and Noto Serif fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700&family=Noto+Serif:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+  
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="index.css">
+</head>
+<body>
+  <!-- Ambient Atmosphere Lighting Overlay (Light leaks and twilight/night colors) -->
+  <div class="ambient-lighting-overlay" id="ambient-overlay"></div>
+  
+  <div class="app-container">
+    
+    <!-- Left Navigation Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <span class="label-sm brand-subtitle">ZENITH ARCHITECTURE</span>
+        <h1 class="display-lg brand-title">MINKA<br>VIEWER</h1>
+      </div>
+      
+      <!-- Primary Navigation -->
+      <nav class="main-nav" id="main-nav">
+        <ul>
+          <li class="nav-item active" data-room="main">
+            <span class="label-sm nav-num">01</span>
+            <span class="nav-text">OVERVIEW</span>
+          </li>
+          <li class="nav-item" data-room="tearoom">
+            <span class="label-sm nav-num">02</span>
+            <span class="nav-text">CHASHITSU</span>
+          </li>
+          <li class="nav-item" data-room="zengarden">
+            <span class="label-sm nav-num">03</span>
+            <span class="nav-text">KARESANSUI</span>
+          </li>
+          <li class="nav-item" data-room="engawa">
+            <span class="label-sm nav-num">04</span>
+            <span class="nav-text">ENGAWA</span>
+          </li>
+        </ul>
+      </nav>
+      
+      <!-- Blueprint View Trigger Button -->
+      <div class="sidebar-action">
+        <button id="btn-blueprint" class="btn btn-secondary">
+          <span class="btn-icon">◰</span>
+          <span class="btn-text">VIEW BLUEPRINT</span>
+        </button>
+      </div>
+
+      <!-- Environment Controls (Atmospheric Dial) -->
+      <div class="env-controls card">
+        <h3 class="label-md section-title">ATMOSPHERE</h3>
+        
+        <!-- Time of Day Slider -->
+        <div class="slider-group">
+          <div class="slider-labels">
+            <span class="label-sm">TIME OF DAY</span>
+            <span class="label-sm val-display" id="time-val">MIDDAY</span>
+          </div>
+          <input type="range" id="slider-time" min="0" max="3" value="1" class="custom-slider">
+        </div>
+        
+        <!-- Weather / Rain Slider -->
+        <div class="slider-group">
+          <div class="slider-labels">
+            <span class="label-sm">WEATHER (RAIN)</span>
+            <span class="label-sm val-display" id="weather-val">CLEAR</span>
+          </div>
+          <input type="range" id="slider-weather" min="0" max="100" value="0" class="custom-slider">
+        </div>
+      </div>
+
+      <!-- Synthesized Audio Cassette Controller -->
+      <div class="audio-deck card">
+        <h3 class="label-md section-title">AMBIENT SYNTHESIZER</h3>
+        <div class="tape-player">
+          <div class="tape-reels" id="tape-reels">
+            <div class="reel-left"></div>
+            <div class="reel-right"></div>
+          </div>
+          <div class="tape-controls">
+            <button id="btn-play-audio" class="play-btn">
+              <span class="play-icon">▶</span>
+              <span class="play-label label-sm">PLAY ATMOSPHERE</span>
+            </button>
+          </div>
+        </div>
+        <div class="audio-toggles">
+          <label class="audio-checkbox">
+            <input type="checkbox" id="chk-wind" checked>
+            <span class="label-sm">Bamboo Wind</span>
+          </label>
+          <label class="audio-checkbox">
+            <input type="checkbox" id="chk-chimes" checked>
+            <span class="label-sm">Suzu Chimes</span>
+          </label>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Viewport Section -->
+    <main class="viewport-section">
+      <div class="viewport-card card">
+        <!-- Viewport Status Indicator -->
+        <div class="viewport-header">
+          <span class="label-sm uppercase font-manrope letter-spacing-wide tracking-wider" id="view-title">01 / EXTERIOR OVERVIEW</span>
+          <div class="indicators">
+            <span class="indicator active" id="indicator-active"></span>
+            <span class="label-sm text-dim uppercase" id="room-coords">35°24'N, 138°43'E</span>
+          </div>
+        </div>
+        
+        <!-- Interactive Viewport Media Container -->
+        <div class="media-container" id="media-container">
+          <!-- Room Images -->
+          <img src="stitch/minka_viewer_main_view/screen.png" alt="Minka Main View" class="room-image active" id="img-main">
+          <img src="stitch/minka_viewer_tea_room/screen.png" alt="Minka Tea Room" class="room-image" id="img-tearoom">
+          <img src="stitch/minka_viewer_isometric_zen_garden_enlarged/screen.png" alt="Minka Zen Garden" class="room-image" id="img-zengarden">
+          <img src="stitch/minka_viewer_engawa_view_enlarged/screen.png" alt="Minka Engawa" class="room-image" id="img-engawa">
+          
+          <!-- Sandbox Canvas for Sand Raking (only visible on Zen Garden view) -->
+          <canvas id="sandbox-canvas" class="sandbox-layer"></canvas>
+          
+          <!-- Sandbox Controls (visible only when Garden view is active) -->
+          <div class="sandbox-controls" id="sandbox-controls">
+            <button id="btn-clear-sand" class="btn btn-secondary btn-sm">CLEAR SAND PATTERNS</button>
+            <div class="rake-mode-chips">
+              <span class="chip active" data-mode="rake">5-PIN RAKE</span>
+              <span class="chip" data-mode="single">SINGLE PIN</span>
+            </div>
+            <p class="label-sm text-paper-dim">Drag on the garden to rake gravel</p>
+          </div>
+
+          <!-- Hotspots overlays -->
+          <div class="hotspots-overlay" id="hotspots-overlay">
+            <!-- Hotspots will be dynamically rendered here -->
+          </div>
+        </div>
+        
+        <!-- Viewport Footer Meta -->
+        <div class="viewport-footer">
+          <div class="quote-container">
+            <p class="body-md italic" id="view-quote">"To experience the void, one must align with the materials of nature, where Hinoki meets Washi, and silence holds the space."</p>
+          </div>
+          <div class="detail-trigger-hint label-sm">
+            <span class="pulse-ring"></span> CLICK ON HOTSPOTS TO EXPLORE DETAILS
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Editorial Sliding Drawer (Shoji Panel) -->
+  <dialog id="details-drawer" class="shoji-drawer" closedby="any" aria-labelledby="drawer-title">
+    <div class="drawer-content">
+      <button class="close-drawer-btn" id="btn-close-drawer" aria-label="Close details">×</button>
+      
+      <div class="drawer-header">
+        <span class="label-sm text-sakura" id="drawer-category">ARCHITECTURAL DETAILS</span>
+        <h2 class="headline-lg" id="drawer-title">Tatami Flooring</h2>
+      </div>
+      
+      <div class="drawer-body">
+        <div class="drawer-illustration" id="drawer-illustration">
+          <!-- Dynamically filled with detailed view or schematic -->
+        </div>
+        
+        <div class="drawer-text">
+          <p class="body-lg" id="drawer-intro">The tatami is a traditional Japanese matting made using rice straw for the core, with a covering of woven soft rush (igusa) straw.</p>
+          <div class="separator-line"></div>
+          <div class="body-md text-dim" id="drawer-desc">
+            Tatami mats are constructed in a strict 2:1 aspect ratio, which historically governed the room sizes of traditional houses. The modular sizing creates a natural geometric harmony where rooms are referred to by the number of mats they contain. The scent of fresh igusa grass contributes to the sensory tranquility of the room.
+          </div>
+        </div>
+        
+        <div class="drawer-specifications card">
+          <h4 class="label-md">TECHNICAL SPECIFICATIONS</h4>
+          <table class="spec-table">
+            <tbody id="drawer-specs-table">
+              <tr>
+                <td class="label-sm text-dim">Material</td>
+                <td class="body-md">Igusa Rush Grass, Rice Straw Core</td>
+              </tr>
+              <tr>
+                <td class="label-sm text-dim">Standard Size</td>
+                <td class="body-md">910mm x 1820mm (Kanto Ratio)</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- Blueprint Schematic Overlay Modal -->
+  <dialog id="blueprint-modal" class="blueprint-dialog" closedby="any" aria-labelledby="bp-title">
+    <div class="blueprint-container">
+      <button class="close-bp-btn" id="btn-close-blueprint">×</button>
+      
+      <div class="blueprint-header">
+        <span class="label-sm text-sakura">BLUEPRINT & JOINERY SCHEMATIC</span>
+        <h2 class="display-lg" id="bp-title">MINKA FLOOR PLAN</h2>
+        <p class="body-md text-dim">Interactive architectural layout. Click a sector to warp into its perspective view.</p>
+      </div>
+      
+      <div class="blueprint-layout">
+        <!-- Floor plan graphic (SVG layout) -->
+        <div class="floor-plan-svg-container">
+          <svg viewBox="0 0 600 400" class="blueprint-svg" id="blueprint-svg">
+            <!-- Grid Lines -->
+            <defs>
+              <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
+                <path d="M 20 0 L 0 0 0 20" fill="none" stroke="rgba(240, 238, 233, 0.15)" stroke-width="0.5"/>
+              </pattern>
+            </defs>
+            <rect width="100%" height="100%" fill="url(#grid)" />
+            
+            <!-- Structural Walls -->
+            <rect x="50" y="50" width="500" height="300" fill="none" stroke="#f0bd8b" stroke-width="2" opacity="0.4" stroke-dasharray="4 4" />
+            
+            <!-- Rooms Boundaries -->
+            <!-- Main House / Veranda Overview (Outer Area) -->
+            <g class="bp-sector" data-room="main" id="sector-main">
+              <rect x="60" y="60" width="480" height="280" class="sector-bg" />
+              <text x="300" y="85" text-anchor="middle" class="bp-sector-label">01 / EXTERIOR OVERVIEW (MINKA)</text>
+            </g>
+            
+            <!-- Tea Room (Chashitsu) -->
+            <g class="bp-sector" data-room="tearoom" id="sector-tearoom">
+              <rect x="80" y="120" width="180" height="180" class="sector-bg" />
+              <!-- Tatami Layout representation inside Tea Room -->
+              <rect x="90" y="130" width="80" height="40" class="tatami-mat" />
+              <rect x="170" y="130" width="80" height="40" class="tatami-mat" />
+              <rect x="90" y="170" width="40" height="80" class="tatami-mat" />
+              <rect x="130" y="170" width="40" height="80" class="tatami-mat" />
+              <rect x="170" y="170" width="80" height="40" class="tatami-mat" />
+              <rect x="170" y="210" width="80" height="40" class="tatami-mat" />
+              <text x="170" y="270" text-anchor="middle" class="bp-sector-label">02 / CHASHITSU (TEA ROOM)</text>
+            </g>
+            
+            <!-- Zen Garden (Karesansui) -->
+            <g class="bp-sector" data-room="zengarden" id="sector-zengarden">
+              <rect x="290" y="120" width="230" height="130" class="sector-bg" />
+              <!-- Zen Garden rocks representation -->
+              <circle cx="340" cy="160" r="12" class="rock-marker" />
+              <circle cx="355" cy="175" r="8" class="rock-marker" />
+              <circle cx="430" cy="200" r="15" class="rock-marker" />
+              <!-- Sand Waves representation -->
+              <path d="M 310,160 Q 340,130 370,160 T 430,160" fill="none" stroke="rgba(251, 249, 244, 0.3)" stroke-width="1.5" />
+              <path d="M 300,170 Q 340,140 380,170 T 440,170" fill="none" stroke="rgba(251, 249, 244, 0.3)" stroke-width="1.5" />
+              <text x="405" y="235" text-anchor="middle" class="bp-sector-label">03 / KARESANSUI (ZEN GARDEN)</text>
+            </g>
+            
+            <!-- Veranda (Engawa) -->
+            <g class="bp-sector" data-room="engawa" id="sector-engawa">
+              <rect x="290" y="260" width="230" height="50" class="sector-bg" />
+              <!-- Planks pattern -->
+              <line x1="330" y1="260" x2="330" y2="310" stroke="rgba(251, 249, 244, 0.2)" stroke-width="1" />
+              <line x1="370" y1="260" x2="370" y2="310" stroke="rgba(251, 249, 244, 0.2)" stroke-width="1" />
+              <line x1="410" y1="260" x2="410" y2="310" stroke="rgba(251, 249, 244, 0.2)" stroke-width="1" />
+              <line x1="450" y1="260" x2="450" y2="310" stroke="rgba(251, 249, 244, 0.2)" stroke-width="1" />
+              <line x1="490" y1="260" x2="490" y2="310" stroke="rgba(251, 249, 244, 0.2)" stroke-width="1" />
+              <text x="405" y="290" text-anchor="middle" class="bp-sector-label">04 / ENGAWA (VERANDA)</text>
+            </g>
+          </svg>
+        </div>
+        
+        <!-- Sidebar Legend/Info inside Blueprint overlay -->
+        <div class="blueprint-legend">
+          <div class="bp-legend-item">
+            <h4 class="label-sm text-sakura">MODULAR SHAKKANHO SYSTEM</h4>
+            <p class="body-md">Traditional planning follows the Ken (間) grid, where 1 Ken corresponds to ~1.81 meters—the length of a standard tatami mat. Rooms are assembled as multiples of these modules, fostering mathematical harmony.</p>
+          </div>
+          <div class="bp-legend-item">
+            <h4 class="label-sm text-sakura">ENVIRONMENT DATA</h4>
+            <table class="spec-table">
+              <tbody>
+                <tr>
+                  <td class="label-sm text-dim">Grid Scale</td>
+                  <td class="body-md">1 Grid Unit = 1 Ken (1.81m)</td>
+                </tr>
+                <tr>
+                  <td class="label-sm text-dim">Orientation</td>
+                  <td class="body-md">South-Facing (Optimal solar gain)</td>
+                </tr>
+                <tr>
+                  <td class="label-sm text-dim">Materiality</td>
+                  <td class="body-md">Cedar, Hinoki, Straw, Sand, Granite</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- Script entrypoint -->
+  <script src="app.js" type="module"></script>
+</body>
+</html>
